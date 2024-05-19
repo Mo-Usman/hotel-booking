@@ -1,5 +1,5 @@
 const express = require('express')
-const User = require('../models/user-router')
+const User = require('../models/user-model')
 
 const router = new express.Router()
 
@@ -11,7 +11,7 @@ router.post('/users', async (req, res) => {
         await user.save()
         res.status(201).send(user)
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send(e)
     }
 })
 
@@ -45,7 +45,7 @@ router.patch('/users/:id', async (req, res) => {
             res.status(404).send()
         }
 
-        res.status(201).send()
+        res.status(200).send()
     } catch (e) {
         res.status(500).send()
     }
