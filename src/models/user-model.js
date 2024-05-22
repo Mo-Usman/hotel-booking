@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -10,8 +11,8 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        trim: true,
         unique: true,
+        trim: true,
         required: true,
         lowercase: true,
         validate: {
@@ -37,18 +38,41 @@ const userSchema = new mongoose.Schema({
                 // }
             }
         }
-    }
+    },
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 })
 
-// Function to hash password before saving in the database
-userSchema.pre('save', async function (next) {
+// Function to generate authentication tokens
+userSchema.methods.generateAuthToken = async function () {
     const user = this
-    if(user.isModified("password")) {
-        user.password = await bcrypt.hash(user.password, 8)
+    const token = jwt.sign({ _id: user._id }, 'hotelapiitoken')
+
+    user.tokens = user.tokens.concat({ token: token })
+    await user.save()
+
+    return token
+}
+
+// Function to log users in using email and password
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email })
+
+    if (!user) {
+        throw new Error('No users found with the matching email!')
+    }
+    const isMatch = password === user.password ? true : false
+
+    if (!isMatch) {
+        throw new Error('Incorrect Password!')
     }
 
-    next()
-})
+    return user
+}
 
 const User = mongoose.model('User', userSchema)
 
