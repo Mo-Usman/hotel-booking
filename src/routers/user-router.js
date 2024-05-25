@@ -32,6 +32,32 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
+// Route handler for logging out of a single sessions
+router.post('/users/logout', auth, async (req, res) => {
+   try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+        return token.token !== req.token
+    })
+
+    await req.user.save()
+    res.send()
+
+   } catch (e) {
+    res.status(500).send()
+   }
+})
+
+// Route handler for logging out of all sessions
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.status(200).send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
 // Route handler for fetching users
 router.get('/users/readProfile', auth, async (req, res) => {
     res.send(req.user)
