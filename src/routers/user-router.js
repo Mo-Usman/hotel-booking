@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user-model')
 const auth = require('../middleware/auth')
+const Hotel = require('../models/hotel-model')
 
 const router = new express.Router()
 
@@ -26,7 +27,21 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(email, password)
         const token = await user.generateAuthToken()
-        res.send({ user, token })
+        res.status(200).send({ user, token })
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+// Route handler for booking a hotel
+router.post('/users/bookHotel/:id', auth, async (req, res) => {
+    const hotel = req.params.id
+    const user = req.user
+
+    try {
+        user.bookedHotels = user.bookedHotels.concat({ hotel: hotel })
+        await user.save()
+        res.status(200).send(user)
     } catch (e) {
         res.status(400).send(e)
     }
@@ -58,7 +73,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     }
 })
 
-// Route handler for fetching users
+// Route handler for fetching profile
 router.get('/users/readProfile', auth, async (req, res) => {
     res.send(req.user)
 })
@@ -77,7 +92,10 @@ router.patch('/users/:id', async (req, res) => {
 
     
     try {
-        const user = await User.findByIdAndUpdate(id, req.body)
+        const user = await User.findById(id)
+        updates.forEach((update) => user[update] = req.body[update])
+
+        await user.save()
         
         if(!user) {
             res.status(404).send()

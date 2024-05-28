@@ -11,7 +11,7 @@ router.post('/hotels', async (req, res) => {
         await hotel.save()
         res.status(201).send(hotel)
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send(e)
     }
 })
 

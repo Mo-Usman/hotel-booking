@@ -44,13 +44,30 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         }
+    }],
+    bookedHotels: [{
+       bookedHotel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Hotel'
+       }
     }]
 })
+
+// Function to send back public profile of the user
+userSchema.methods.toJSON = function () {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+
+    return userObject
+}
 
 // Function to generate authentication tokens
 userSchema.methods.generateAuthToken = async function () {
     const user = this
-    const token = jwt.sign({ _id: user._id }, 'hotelapiitoken')
+    const token = jwt.sign({ _id: user._id.toString() }, 'hotelapitoken')
 
     user.tokens = user.tokens.concat({ token: token })
     await user.save()

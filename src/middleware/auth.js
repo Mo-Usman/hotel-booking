@@ -3,8 +3,8 @@ const User = require('../models/user-model')
 
 const auth = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')
-        const decodedToken = jwt.verify(token, 'hotelapiitoken')
+        const token = req.header('Authorization').replace('Bearer ', '')
+        const decodedToken = jwt.verify(token, 'hotelapitoken')
         const user = await User.findOne({ _id: decodedToken._id, 'tokens.token': token })
 
         if(!user) {
@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
 
         next()
     } catch (e) {
-        res.send({ error: 'Please Authenticate!' })
+        res.status(401).send({ error: 'Please Authenticate!', e })
     }
 } 
 
