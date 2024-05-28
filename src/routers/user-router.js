@@ -79,7 +79,7 @@ router.get('/users/readProfile', auth, async (req, res) => {
 })
 
 // Route handler for updating users
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/updateProfile', auth, async (req, res) => {
 
     const id = req.params.id
     const updates = Object.keys(req.body)
@@ -92,14 +92,9 @@ router.patch('/users/:id', async (req, res) => {
 
     
     try {
-        const user = await User.findById(id)
-        updates.forEach((update) => user[update] = req.body[update])
+        updates.forEach((update) => req.user[update] = req.body[update])
 
-        await user.save()
-        
-        if(!user) {
-            res.status(404).send()
-        }
+        await req.user.save()
 
         res.status(200).send()
     } catch (e) {
@@ -108,11 +103,11 @@ router.patch('/users/:id', async (req, res) => {
 })
 
 // Route handler for deleting a user using id
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/deleteProfile', auth, async (req, res) => {
 
     try {
-        const user = await User.findByIdAndDelete(req.params.id)
-        res.status(200).send(user)
+        const user = await User.findByIdAndDelete(req.user._id)
+        res.status(200).send(req.user)
     } catch (e) {
         res.status(404).send()
     }
