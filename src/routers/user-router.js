@@ -39,7 +39,7 @@ router.post('/users/bookHotel/:id', auth, async (req, res) => {
     const user = req.user
 
     try {
-        user.bookedHotels = user.bookedHotels.concat({ hotel: hotel })
+        user.bookedHotels = user.bookedHotels.concat({ bookedHotel: hotel })
         await user.save()
         res.status(200).send(user)
     } catch (e) {

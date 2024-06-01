@@ -1,5 +1,7 @@
 const express = require('express')
 const Hotel = require('../models/hotel-model')
+const auth = require('../middleware/auth')
+const User = require('../models/user-model')
 
 const router = new express.Router()
 
@@ -59,6 +61,17 @@ router.delete('/hotels/:id', async (req, res) => {
         res.status(200).send()
     } catch (e) {
         res.status(400).send()
+    }
+})
+
+// Route handler for fetching ordered foods by a logged in user
+router.get('/hotels/myHotels', auth, async (req, res) => {
+    try  {
+        const user = req.user
+        await user.populate('bookedHotels.bookedHotel')
+        res.send(user.bookedHotels)
+    } catch (e) {
+        res.status(400).send(e)
     }
 })
 
