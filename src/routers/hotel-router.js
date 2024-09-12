@@ -1,7 +1,6 @@
 const express = require('express')
 const Hotel = require('../models/hotel-model')
-const auth = require('../middleware/auth')
-const User = require('../models/user-model')
+const { auth } = require('../middleware/auth')
 
 const router = new express.Router()
 
@@ -42,7 +41,7 @@ router.patch('/hotels/:id', async (req, res) => {
     }
 
     try {
-        const hotel = await Hotel.findByIdAndUpdate(id, req.body)
+        const hotel = await Hotel.findByIdAndUpdate(id, req.body, { new: true })
 
         if (!hotel) {
             res.status(404).send()
@@ -64,7 +63,7 @@ router.delete('/hotels/:id', async (req, res) => {
     }
 })
 
-// Route handler for fetching ordered foods by a logged in user
+// Route handler for fetching booked hotels by a logged in user
 router.get('/hotels/myHotels', auth, async (req, res) => {
     try  {
         const user = req.user

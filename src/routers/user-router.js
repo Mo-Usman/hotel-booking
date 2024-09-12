@@ -1,7 +1,7 @@
 const express = require('express')
 const User = require('../models/user-model')
-const auth = require('../middleware/auth')
-const Hotel = require('../models/hotel-model')
+const { auth, adminAuth } = require('../middleware/auth')
+
 
 const router = new express.Router()
 
@@ -74,7 +74,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 })
 
 // Route handler for fetching profile
-router.get('/users/readProfile', auth, async (req, res) => {
+router.get('/users/readProfile', adminAuth, auth, async (req, res) => {
     res.send(req.user)
 })
 
@@ -103,7 +103,7 @@ router.patch('/users/updateProfile', auth, async (req, res) => {
 })
 
 // Route handler for deleting a user using id
-router.delete('/users/deleteProfile', auth, async (req, res) => {
+router.delete('/users/deleteProfile', adminAuth, auth, async (req, res) => {
 
     try {
         const user = await User.findByIdAndDelete(req.user._id)
