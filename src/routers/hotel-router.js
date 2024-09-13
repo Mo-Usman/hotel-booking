@@ -1,11 +1,11 @@
 const express = require('express')
 const Hotel = require('../models/hotel-model')
-const { auth } = require('../middleware/auth')
+const { adminAuth } = require('../middleware/auth')
 
 const router = new express.Router()
 
 // Route handler for adding a hotel
-router.post('/hotels', async (req, res) => {
+router.post('/hotels', adminAuth, async (req, res) => {
     const hotel = new Hotel(req.body)
 
     try {
@@ -17,7 +17,7 @@ router.post('/hotels', async (req, res) => {
 })
 
 // Route handler for fetching hotels
-router.get('/hotels/read', async (req, res) => {
+router.get('/hotels/read', adminAuth, async (req, res) => {
 
     try {
         const hotels = await Hotel.find()
@@ -28,7 +28,7 @@ router.get('/hotels/read', async (req, res) => {
 })
 
 // Route handler for updating a hotel information
-router.patch('/hotels/:id', async (req, res) => {
+router.patch('/hotels/:id', adminAuth, async (req, res) => {
 
     const id = req.params.id
 
@@ -54,7 +54,7 @@ router.patch('/hotels/:id', async (req, res) => {
 })
 
 // Route handler for deleting a hotel from the database
-router.delete('/hotels/:id', async (req, res) => {
+router.delete('/hotels/:id', adminAuth, async (req, res) => {
     try {
         const hotel = await Hotel.findByIdAndDelete(req.params.id)
         res.status(200).send()
@@ -64,7 +64,7 @@ router.delete('/hotels/:id', async (req, res) => {
 })
 
 // Route handler for fetching booked hotels by a logged in user
-router.get('/hotels/myHotels', auth, async (req, res) => {
+router.get('/hotels/myHotels', adminAuth, async (req, res) => {
     try  {
         const user = req.user
         await user.populate('bookedHotels.bookedHotel')
