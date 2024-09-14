@@ -1,37 +1,24 @@
 const express = require('express')
 const User = require('../models/user-model')
-const { auth, adminAuth } = require('../middleware/auth')
+const { auth, adminAuth, signUp, login } = require('../middleware/auth')
 
 
 const router = new express.Router()
 
-// Route handler for inserting users
-router.post('/users', async (req, res) => {
-    const user = new User(req.body)
-
-    try {
-        await user.save()
-        const token = await user.generateAuthToken()
-        res.status(201).send({ user, token })
-    } catch (e) {
-        res.status(400).send(e)
-    }
+router.get('/checkAuth/:id', auth, (req, res) => {
+    res.send('Welcome User')
 })
+
+router.get('/checkAdmin/:id', adminAuth, (req, res) => {
+    res.send('Hello admin')
+})
+
+
+// Route handler for inserting users
+router.post('/users', signUp)
 
 // Route handler for logging users in using email and password
-router.post('/users/login', async (req, res) => {
-
-    const email = req.body.email
-    const password = req.body.password
-
-    try {
-        const user = await User.findByCredentials(email, password)
-        const token = await user.generateAuthToken()
-        res.status(200).send({ user, token })
-    } catch (e) {
-        res.status(400).send(e)
-    }
-})
+router.post('/users/login', login)
 
 // Route handler for booking a hotel
 router.post('/users/bookHotel/:id', auth, async (req, res) => {
@@ -74,8 +61,21 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 })
 
 // Route handler for fetching profile
-router.get('/users/readProfile', adminAuth, auth, async (req, res) => {
-    res.send(req.user)
+router.get('/users/:id', auth, async (req, res) => {
+    if( req.user._id === req.params.id || req.user.isAdmin) {
+        const user = await User.findById(req.user._id)
+        res.send(user)
+    }
+})
+
+// Route handler for fetching all the users
+router.get('/users', adminAuth, async (req, res) => {
+    try {
+        const users = await User.find()
+        res.send(users)
+    } catch (e) {
+        res.status(500).send(e)
+    }
 })
 
 // Route handler for updating users

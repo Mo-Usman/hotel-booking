@@ -3,10 +3,13 @@ require('./db/mongoose')
 const userRouter = require('../src/routers/user-router')
 const hotelRouter = require('../src/routers/hotel-router')
 const roomRouter = require('../src/routers/room-router')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 
+
 app.use(express.json())
+app.use(cookieParser())
 app.use(userRouter)
 app.use(hotelRouter)
 app.use(roomRouter)
